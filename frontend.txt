@@ -1,0 +1,167 @@
+- Installation
+
+Application -
+VSCode
+NodeJS
+Git
+Postman
+
+Chrome web extention - 
+React Developer Tools
+Redux DevTools
+
+VSCode extensions -
+ES7 React/Redux/GraphQL/React-Native snippets extension
+JavaScript (ES6) code snippets 
+Prettier - Code formatter
+Material Icon Theme
+Babel JavaScript
+Github Copilot
+
+==============================================================================================
+- File Structure
+
+frontend - React UI & all frontend dependecies (Redux, Bootstrap,etc)
+backend - Server-side code, Models, controllers & routes
+uploads - Image uploads
+
+node_modules - Server dependecies (Express, Mongoose, etc)
+package.json - Server package.json
+.env - Environment variables (MongoDB URI, JWT Secret, etc)
+.git
+.gitgnore
+
+==============================================================================================
+- Setting up environment 
+create "shadozon" folder
+
+create react app with named "frontend" for frontend
+>> npx create-react-app frontend
+
+navigate to project
+>> cd frontend
+
+run the project
+>> npm start
+
+delete below files -
+App.css
+App.test.js
+logo.svg
+logo192.svg
+logo512.svg
+
+
+App.js -
+function App() {
+  return (
+    <>
+    
+    </>
+  );
+}
+export default App;
+
+
+index.html - 
+<title> Shadozon </title>
+<<delete all comments>>
+
+
+manifest.json - delete below blocks
+{
+  "src": "logo192.png",
+  "type": "image/png",
+  "sizes": "192x192"
+},
+{
+  "src": "logo512.png",
+  "type": "image/png",
+  "sizes": "512x512"
+}
+
+
+.gitignore - 
+node_modules  
+.env
+<<Move .gitignore to root folder>>
+
+==============================================================================================
+- Git Initialize
+
+New repository > Repository name - shadozon > Public > Add a README file > Create Repository
+
+>> git init
+>> git add .
+>> git commit -m 'Initial commit'
+>> git remote add origin https://github.com/shivam-th/shadozon.git
+>> git push origin main or  git push -u origin main --force   
+
+
+Source Control > commit name > Commit
+==============================================================================================
+Install Bootstrap
+
+>> npm install bootstrap@5.3.2
+
+index.js - 
+import "bootstrap/dist/css/bootstrap.min.css";
+
+==============================================================================================
+- Create component
+
+create "components" folder under src
+
+create "Header.jsx" folder under components
+
+Header.js -
+const Header = () => {
+    return (
+        <div>
+
+        </div>
+    )
+}
+export default Header
+
+
+App.js -
+import Header from './components/Header';
+function App() {
+  return (
+    <>
+      <Header/>
+    </>
+  );
+}
+
+==============================================================================================
+
+
+
+
+
+
+
+
+
+- Install Material UI
+
+https://mui.com/material-ui/material-icons/ 
+
+>> npm install @mui/icons-material @mui/material @emotion/styled @emotion/react
+
+Choose icon > copy import code > paste in your code
+==============================================================================================
+- Google Font
+https://fonts.google.com/
+Search or choose font > Select one or multiple styles > copy import code > paste in App.css
+
+App.css -
+@import url('https://fonts.googleapis.com/css2?family=Agbalumo&family=Open+Sans:wght@400;500;600&display=swap');
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+==============================================================================================
