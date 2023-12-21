@@ -1,14 +1,17 @@
-- Express Server
+Express Server:
+
+- create the app.js file in backend folder & run the app.js in backend directory
 
 create "backend" folder
 
-create "app.js" file under "server"
+create "app.js" file under "backend"
 
 >> cd backend
 >> node app.js
 
 ----------------------------------------------------------------------------------------------
-create "package.json"
+- initialize the "package.json" file & run the app.js in project directory, also modify type and scrpt in package.json 
+
 >> npm init or npm init -y
 package name: (shadozon)
 version: (1.0.0)
@@ -22,11 +25,14 @@ package.json -
 "scripts": {
 	"start": "node backend/app.js"
 }
+<<remove "test": "echo \"Error: no test specified\" && exit 1", >>
 
->> cd shadozon
 >> npm start
 ----------------------------------------------------------------------------------------------
+- installing express & configure
+
 >> npm i express 
+
 
 app.js -
 import express from "express";
@@ -40,6 +46,7 @@ app.get("/", (req, res) => {
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
 
+
 shadozon >> npm start
 Server running on port ${port}
 
@@ -47,11 +54,14 @@ frontend >> npm start
 http://localhost:5000/  > API is running
 
 ==============================================================================================
-- Initial Product Routes
+Initial Product Routes:
+
+- copy paste products.js file in data folder & configure in app.js
 
 create "data" folder" under backend
 
-copy & paste "products.js" file in data
+copy paste "products.js" file in data
+
 
 app.js -
 import products from "./data/products.js";
@@ -65,7 +75,42 @@ app.get("/api/products/:id", (req, res) => {
   res.json(product);
 });
 
---------------------------------------------------------------------------------------------
+==============================================================================================
+Nodemon & Concurrently:
+
+- installing nodemon & concurrently packages
+
+>> npm i -D nodemon concurrently
+----------------------------------------------------------------------------------------------
+- modify script in package.json script & run the server
+
+package.json -
+"scripts": {
+	"server": "nodemon backend/app.js"
+},
+
+
+>> npm run server
+----------------------------------------------------------------------------------------------
+- modify script in package.json script & run the client
+
+package.json -
+"scripts": {
+	"client": "npm start --prefix frontend"
+},
+
+>> npm run client
+----------------------------------------------------------------------------------------------
+- modify script in package.json script & run the client/server both corrently
+
+package.json -
+"scripts": {
+	"dev": "concurrently \" npm run server \"  \" npm run client\""
+},
+
+>> npm run dev
+
+==============================================================================================
 - Mongo DB installation
 
 download MongoDB from https://www.mongodb.com/try/download/community 
