@@ -1,0 +1,207 @@
+- Express Server & 
+
+create "backend" folder
+
+create "app.js" file under "server"
+
+>> cd backend
+>> node app.js
+
+----------------------------------------------------------------------------------------------
+create "package.json"
+>> npm init or npm init -y
+package name: (shadozon)
+version: (1.0.0)
+description: Ecommerce application built with the MERN stack
+entry point: (index.js) app.js
+author: Shivam Thakur
+
+
+package.json - 
+"type": "module",
+"scripts": {
+	"start": "node backend/app.js"
+}
+
+>> cd shadozon
+>> npm start
+----------------------------------------------------------------------------------------------
+>> npm i express 
+
+app.js -
+import express from "express";
+
+const app = express();
+const port = 5000;
+
+app.get("/", (req, res) => {
+  res.send("API is running");
+});
+
+app.listen(port, () => console.log(`Server running on port ${port}`));
+
+shadozon >> npm start
+Server running on port ${port}
+
+frontend >> npm start
+http://localhost:5000/  > API is running
+
+==============================================================================================
+- Initial Product Routes
+
+create "data" folder" under backend
+
+copy & paste "products.js" file in data
+
+app.js -
+
+ 
+--------------------------------------------------------------------------------------------
+- Mongo DB installation
+
+download MongoDB from https://www.mongodb.com/try/download/community 
+
+verify version
+>> "C:\Program Files\MongoDB\Server\7.0\bin\mongod.exe" --version
+
+--------------------------------------------------------------------------------------------
+- Mongo Atlas configuration
+
+sign in > https://www.mongodb.com/cloud/atlas/register 
+
+create project - MERN > admin /admin or shivam05 pashiv
+
+Database > Browse Collection > Collections > Add My own DataCreate database 
+Database name - amazone-cone > Collection name - products > Create 
+
+Database > Connect > Drivers > copy - mongodb+srv://admin:<password>@cluster0.s3bnpkz.mongodb.net/?retryWrites=true&w=majority
+Note: change password after username & database name before ? before using it
+
+--------------------------------------------------------------------------------------------
+- Database configuration 
+
+create "database" folder under "server" 
+
+create "connection.js" & ".env" files under "database"
+
+.env -  
+DATABASE = "mongodb+srv://admin:admin@cluster0.s3bnpkz.mongodb.net/amazon-clone?retryWrites=true&w=majority"
+
+connection.js - 
+const mongoose = require("mongoose");
+const db = process.env.DATABASE
+mongoose.connect(db).then(() => console.log("Database connected")).
+catch((error) => console.log("error" + error.message))
+
+app.js -
+require("./database/connection");
+
+
+
+--------------------------------------------------------------------------------------------
+create constant folder under server
+
+create productdata.js under constant
+--------------------------------------------------------------------------------------------
+- define schema (type of object) & feteching to data in db
+
+create model folder under server
+
+create Product.js & User.js under constant
+
+Product.js -
+const mongoose = require('mongoose');
+
+const productSchema = new mongoose.Schema({
+  id: Number,
+  url: String,
+    type: String
+  }]
+});
+
+
+const Product = new mongoose.model("products", productSchema);  //feteching
+
+module.exports = Product;
+
+Note: products is table name which given in Mongodb
+
+
+app.js -
+const Product = require("./models/Product");
+
+--------------------------------------------------------------------------------------------
+- nodemon 
+automatically restarting the node application when file changes in the directory are detected
+
+>> npm install -g nodemon
+>> nodemon app.js
+
+--------------------------------------------------------------------------------------------
+- create defaultdata.json to import schema & constant
+
+defaultdata.json - 
+const Product = require('./models/Product');
+const productsData = require('./constant/productsData');
+
+async function defaultData() {
+  try {
+    // Deleting all entries in the DB
+    await Product.deleteMany({});
+    // Inserting all entries from productsData in the DB
+    await Product.insertMany(productsData);
+    console.log("Data entered in Database");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+app.js - 
+const DefaultData= require("./defaultData")
+DefaultData();
+
+Refresh Mongo
+you will data which is in productdata.js under product
+--------------------------------------------------------------------------------------------
+- To Fetch data dynamically
+
+app.js - 
+app.use(express.json());
+
+--------------------------------------------------------------------------------------------
+When data send from frontend to backend it will throw error because both ports are different to avoid that we are installing cors package
+>> npm i cors
+
+app.js - 
+const cors =  require("cors");
+app.use(cors());
+
+--------------------------------------------------------------------------------------------
+- To store API in files
+
+create router folder under server
+
+create router.js under router
+
+router.js - 
+const express = require("express")
+
+//To call API
+const router = new express.Router();
+
+app.js - 
+const router = require("./routes/router");
+app.use(router);
+
+
+--------------------------------------------------------------------------------------------
+- Install Postman
+https://www.postman.com/downloads/ > shivam0567 /PaShiv@99
+Workspace > MERN - Create Workspace >
+Collection > + > Blank collection > name - amazon-clone
+Hover -amazon-clone > 3 dots > Add request > name - getproductsdata
+Url - http://localhost:8000/getproductsdata (give server port number, here getproductsdata route taken from router.js)
+
+
+

@@ -13,7 +13,7 @@ import Rating from "../components/Rating";
 import products from "../products";
 
 const ProductScreen = () => {
-  const { id: productId } = useParams();
+  const { id: productId } = useParams(); // this id got from router url
   const product = products.find((p) => p._id === productId);
 
   return (
