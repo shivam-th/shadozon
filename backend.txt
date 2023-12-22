@@ -128,6 +128,53 @@ dotenv.config();
 const port = process.env.PORT || 5000;
 
 ==============================================================================================
+Fetch Products -
+
+- install axios, add proxy in frontend package.json &  fetch data in HomeScreen.jsx/ProductScreen.jsx
+>> npm i axios
+
+
+package.json - 
+"proxy": "http://localhost:8000"'
+
+
+HomeScreen.jsx -
+import { useEffect, useState } from "react";
+import axios from "axios";'
+
+const [products, setProducts] = useState([]);
+useEffect(() => {
+	const fetchProducts = async () => {
+	  const { data } = await axios.get("/api/products");
+	  setProducts(data);
+	};
+	fetchProducts();
+}, []);
+<<remove import products from "../products";>>
+
+Inspect > Network > Reload > Reponse
+
+
+ProductScreen.jsx - 
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+const [product, setProducts] = useState([]);
+const { id: productId } = useParams();
+
+useEffect(() => {
+const fetchProduct = async () => {
+  const { data } = await axios.get(`/api/products/${productId}`);
+  setProducts(data);
+};
+fetchProduct();
+}, [productId]);
+
+
+Now we can delete product.js from frontend
+
+==============================================================================================
+
 - Mongo DB installation
 
 download MongoDB from https://www.mongodb.com/try/download/community 
@@ -276,3 +323,18 @@ Url - http://localhost:8000/getproductsdata (give server port number, here getpr
 
 
 
+
+index.js - 
+<Route path="/product/:id" element={<ProductScreen />
+
+product.js -
+<Link to={`/product/${product._id}`}>
+
+app.js -
+app.get("/api/products/:id", (req, res) => {
+  const product = products.find((p) => p._id === req.params.id);
+  res.json(product);
+});
+
+ProductScreen.jsx
+const { data } = await axios.get(`/api/products/${productId}`);	

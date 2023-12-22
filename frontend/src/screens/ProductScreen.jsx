@@ -10,11 +10,20 @@ import {
   ListGroupItem,
 } from "react-bootstrap";
 import Rating from "../components/Rating";
-import products from "../products";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const ProductScreen = () => {
-  const { id: productId } = useParams(); // this id got from router url
-  const product = products.find((p) => p._id === productId);
+  const [product, setProducts] = useState([]);
+  const { id: productId } = useParams();
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const { data } = await axios.get(`/api/products/${productId}`);
+      setProducts(data);
+    };
+    fetchProduct();
+  }, [productId]);
 
   return (
     <>
