@@ -136,15 +136,6 @@ function App() {
 }
 
 ==============================================================================================
-
-
-
-
-
-
-
-
-
 - Install Material UI
 
 https://mui.com/material-ui/material-icons/ 

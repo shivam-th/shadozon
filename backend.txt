@@ -174,36 +174,57 @@ fetchProduct();
 Now we can delete product.js from frontend
 
 ==============================================================================================
+MongoDB Atlas Setup:
 
-- Mongo DB installation
+- Sign in & create database in collections, add connection string in .env 
 
-download MongoDB from https://www.mongodb.com/try/download/community 
+https://www.mongodb.com/ > Sign in (Cluster0 - admin /admin123)
 
-verify version
->> "C:\Program Files\MongoDB\Server\7.0\bin\mongod.exe" --version
+Database > Browse Collection > Collections > Create database 
+Database name - shadozon > Collection name - products > Create 
 
---------------------------------------------------------------------------------------------
-- Mongo Atlas configuration
+Database > Connect > Drivers > Add your connection string (mongodb+srv://admin:<password>@cluster0.lnlp84f.mongodb.net/?retryWrites=true&w=majority)
+Note: replace <password> with your cluster password & add database name before "?" 
 
-sign in > https://www.mongodb.com/cloud/atlas/register 
+.env -  
+DATABASE = "mongodb+srv://admin:admin123@cluster0.lnlp84f.mongodb.net/shadozon?retryWrites=true&w=majority"
 
-create project - MERN > admin /admin or shivam05 pashiv
+==============================================================================================
+MongoDB Compass Setup:
 
-Database > Browse Collection > Collections > Add My own DataCreate database 
-Database name - amazone-cone > Collection name - products > Create 
+- Installing Compass & connect atlas with compass
 
-Database > Connect > Drivers > copy - mongodb+srv://admin:<password>@cluster0.s3bnpkz.mongodb.net/?retryWrites=true&w=majority
-Note: change password after username & database name before ? before using it
+https://www.mongodb.com/try/download/community > Download > Install
 
---------------------------------------------------------------------------------------------
+Atlas > Database > Connect > Compass > Copy the connection string (mongodb+srv://admin:<password>@cluster0.lnlp84f.mongodb.net/)
+Note: replace <password> with cluster password & add database name after "/" 
+
+Compass > URI - mongodb+srv://admin:admin123@cluster0.lnlp84f.mongodb.net/shadozon > Connect
+
+==============================================================================================
+
+==============================================================================================
+==============================================================================================
+==============================================================================================
+Connect with Mongoose:
+
+- install mongoose & create db.js file under config
+
+>> npm i mongoose
+
+create "config" folder 
+
+create "db.js" file under config
+
+
+
+==============================================================================================
 - Database configuration 
 
 create "database" folder under "server" 
 
 create "connection.js" & ".env" files under "database"
 
-.env -  
-DATABASE = "mongodb+srv://admin:admin@cluster0.s3bnpkz.mongodb.net/amazon-clone?retryWrites=true&w=majority"
 
 connection.js - 
 const mongoose = require("mongoose");
@@ -213,8 +234,6 @@ catch((error) => console.log("error" + error.message))
 
 app.js -
 require("./database/connection");
-
-
 
 --------------------------------------------------------------------------------------------
 create constant folder under server
