@@ -2,10 +2,9 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
+    name: {
+      type: String,
       required: true,
-      ref: "User",
     },
     email: {
       type: String,
@@ -26,6 +25,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-const User = mongoose.model("User", userschema);
+const User = mongoose.model("User", userSchema);
 
 export default User;

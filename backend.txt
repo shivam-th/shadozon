@@ -202,6 +202,7 @@ Note: replace <password> with cluster password & add database name after "/"
 Compass > URI - mongodb+srv://admin:admin123@cluster0.lnlp84f.mongodb.net/shadozon > Connect
 
 ==============================================================================================
+Modelling Data:
 
 create "models" folder under backend
 
@@ -301,10 +302,9 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
+    name: {
+      type: String,
       required: true,
-      ref: "User",
     },
     email: {
       type: String,
@@ -415,13 +415,111 @@ const Order = mongoose.model("Order", orderSchema);
 
 export default Order;
 
-
-
-
-
-
 ==============================================================================================
+Prepare Sample Data:
+
+- remove id from product.js because mongo db dont need
+
+- create "user.js" file under data
+
+- install package to hash password
+>> npm i bcryptjs
+
+user.js - 
+import bcryptjs from "bcryptjs";
+
+const user = [
+  {
+    name: "Admin User",
+    email: "admin@email.com",
+    password: bcryptjs.hashSync("123456", 10),
+    isAdmin: true,
+  },
+  {
+    name: "Shadow",
+    email: "shadow@email.com",
+    password: bcryptjs.hashSync("123456", 10),
+    isAdmin: false,
+  },
+];
+
+export default user;
 ==============================================================================================
+- install color package to get a color to output
+>> npm i colors
+==============================================================================================
+Seeding Sample Data:
+
+- create "seeder.js" file under backend
+
+seeder.js -
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import users from "./data/user.js";
+import products from "./data/products.js";
+import User from "./models/userModel.js";
+import Product from "./models/productModel.js";
+import Order from "./models/orderModel.js";
+import connectDB from "./config/db.js";
+import colors from "colors";
+
+dotenv.config();
+
+connectDB();
+
+const importData = async () => {
+  try {
+    await Order.deleteMany();
+    await Product.deleteMany();
+    await User.deleteMany();
+
+    const createUsers = await User.insertMany(users);
+    const adminUser = createUsers[0]._id;
+    const sampleProducts = products.map((product) => {
+      return { ...product, user: adminUser };
+    });
+
+    await Product.insertMany(sampleProducts);
+    console.log("Data Imported!".green.inverse);
+    process.exit();
+  } catch (error) {
+    console.log(`${error}`.red.inverse);
+    process.exit(1);
+  }
+};
+
+const destroyData = async () => {
+  try {
+    await Order.deleteMany();
+    await Product.deleteMany();
+    await User.deleteMany();
+
+    console.log("Data Destroyed!".red.inverse);
+    process.exit();
+  } catch (error) {
+    console.log(`${error}`.red.inverse);
+    process.exit(1);
+  }
+};
+
+if (process.argv[2] === "-d") {
+  destroyData();
+} else {
+  importData();
+}
+
+package.json - 
+"scripts": {
+    "data:destroy": "node backend/seeder.js -d"
+}
+
+>> npm run data:import
+MongoDb > Refresh > data will be added
+
+>> npm run data:destroy
+MongoDb > Refresh > data will be deleted
+
+
 ==============================================================================================
 Connect with Mongoose:
 
@@ -432,8 +530,6 @@ Connect with Mongoose:
 create "config" folder 
 
 create "db.js" file under config
-
-
 
 ==============================================================================================
 - Database configuration 
