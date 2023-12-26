@@ -519,6 +519,106 @@ MongoDb > Refresh > data will be added
 >> npm run data:destroy
 MongoDb > Refresh > data will be deleted
 
+==============================================================================================
+- Postman
+
+https://www.postman.com/downloads/ > shivam0567 /PaShiv@99
+Workspace > Create Workspace > Name - MERN > Create Workspace
+
+Environment > Create Environment > Rename - ShadoZon
+Variable - baseURL, Type - default, Initial value - localhost:8000/api, Current value - localhost:8000/api  > Save
+
+Environment - Shadozon
+
+APIs > Create an API > Rename - ShadoZon > Create		
+
+Collections > Creat Collection > Rename - Shadozon 
+ShadoZon > Add folder > Rename -Products
+
+Products > Add Request > Rename - Get All Products
+
+Enter URL - {{baseURL}}/products or http://localhost:8000/api/products
+==============================================================================================
+Get data from database:
+
+- install asynhandler package
+>> npm i express-async-handler@1.1.4
+----------------------------------------------------------------------------------------------
+- create asyncHandler.js under middleware 
+ 
+create middleware under backend
+
+create "asyncHandler.js" under middleware
+----------------------------------------------------------------------------------------------
+- create "productRoutes.js" file under routes
+
+create "routes" folder under backend
+
+create "productRoutes.js" file under routes
+----------------------------------------------------------------------------------------------
+- remove below code from app.js
+
+import products from "../data/products.js";
+
+app.get("/api/products", (req, res) => {
+  res.json(products);
+});
+
+app.get("/api/products/:id", (req, res) => {
+  const product = products.find((p) => p._id === req.params.id);
+  res.json(product);
+});
+
+----------------------------------------------------------------------------------------------
+app.js -
+
+import productRoutes from "./routes/productRoutes.js";
+app.use("/api/products", productRoutes);
+----------------------------------------------------------------------------------------------
+asyncHandler.js -
+
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+export default asyncHandler;
+----------------------------------------------------------------------------------------------
+productRoutes.js -
+
+import express from "express";
+const router = express.Router();
+import asyncHandler from "../middleware/asyncHandler.js";
+import Product from "../models/productModel.js";
+
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const products = await Product.find({});
+    res.json(products);
+  })
+);
+
+router.get(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      res.json(product);
+    }
+    res.status(404).json({ message: "Product not found" });
+  })
+);
+
+export default router;
+----------------------------------------------------------------------------------------------
+- create request in postman for single product
+
+Products > Add request > Get Single Product
+
+URL - {{baseURL}}/products/:id
+
+Path Variable > Id - 658887d541937acc848166a8 (taken from path)
 
 ==============================================================================================
 Connect with Mongoose:
