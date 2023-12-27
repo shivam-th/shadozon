@@ -608,6 +608,7 @@ router.get(
     }
     res.status(404).json({ message: "Product not found" });
   })
+
 );
 
 export default router;
@@ -621,152 +622,74 @@ URL - {{baseURL}}/products/:id
 Path Variable > Id - 658887d541937acc848166a8 (taken from path)
 
 ==============================================================================================
-Connect with Mongoose:
+Custome Error Middleware:
 
-- install mongoose & create db.js file under config
+- create "errorMiddleware.js" file under middleware
 
->> npm i mongoose
-
-create "config" folder 
-
-create "db.js" file under config
-
-==============================================================================================
-- Database configuration 
-
-create "database" folder under "server" 
-
-create "connection.js" & ".env" files under "database"
-
-
-connection.js - 
-const mongoose = require("mongoose");
-const db = process.env.DATABASE
-mongoose.connect(db).then(() => console.log("Database connected")).
-catch((error) => console.log("error" + error.message))
-
-app.js -
-require("./database/connection");
-
---------------------------------------------------------------------------------------------
-create constant folder under server
-
-create productdata.js under constant
---------------------------------------------------------------------------------------------
-- define schema (type of object) & feteching to data in db
-
-create model folder under server
-
-create Product.js & User.js under constant
-
-Product.js -
-const mongoose = require('mongoose');
-
-const productSchema = new mongoose.Schema({
-  id: Number,
-  url: String,
-    type: String
-  }]
-});
-
-
-const Product = new mongoose.model("products", productSchema);  //feteching
-
-module.exports = Product;
-
-Note: products is table name which given in Mongodb
-
-
-app.js -
-const Product = require("./models/Product");
-
---------------------------------------------------------------------------------------------
-- nodemon 
-automatically restarting the node application when file changes in the directory are detected
-
->> npm install -g nodemon
->> nodemon app.js
-
---------------------------------------------------------------------------------------------
-- create defaultdata.json to import schema & constant
-
-defaultdata.json - 
-const Product = require('./models/Product');
-const productsData = require('./constant/productsData');
-
-async function defaultData() {
-  try {
-    // Deleting all entries in the DB
-    await Product.deleteMany({});
-    // Inserting all entries from productsData in the DB
-    await Product.insertMany(productsData);
-    console.log("Data entered in Database");
-  } catch (error) {
-    console.log(error);
-  }
+errorMiddleware.js -
+const notFound = (req, res, next) => {
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  res.status(404);
+  next(error);
 };
 
+const errorHandler = (err, req, res, next) => {
+  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let message = err.message;
 
-app.js - 
-const DefaultData= require("./defaultData")
-DefaultData();
+  // Check for Mongoose bad ObjectId
+  if (err.name === "CastError" && err.kind === "ObjectId") {
+    message = `Resource not found`;
+    statusCode = 404;
+  }
 
-Refresh Mongo
-you will data which is in productdata.js under product
---------------------------------------------------------------------------------------------
-- To Fetch data dynamically
+  res.status(statusCode).json({
+    message,
+    stack: process.env.NODE_ENV === "production" ? "🥞" : err.stack,
+  });
+};
 
-app.js - 
-app.use(express.json());
+export { notFound, errorHandler };
 
---------------------------------------------------------------------------------------------
-When data send from frontend to backend it will throw error because both ports are different to avoid that we are installing cors package
->> npm i cors
-
-app.js - 
-const cors =  require("cors");
-app.use(cors());
-
---------------------------------------------------------------------------------------------
-- To store API in files
-
-create router folder under server
-
-create router.js under router
-
-router.js - 
-const express = require("express")
-
-//To call API
-const router = new express.Router();
-
-app.js - 
-const router = require("./routes/router");
-app.use(router);
-
-
---------------------------------------------------------------------------------------------
-- Install Postman
-https://www.postman.com/downloads/ > shivam0567 /PaShiv@99
-Workspace > MERN - Create Workspace >
-Collection > + > Blank collection > name - amazon-clone
-Hover -amazon-clone > 3 dots > Add request > name - getproductsdata
-Url - http://localhost:8000/getproductsdata (give server port number, here getproductsdata route taken from router.js)
-
-
-
-
-index.js - 
-<Route path="/product/:id" element={<ProductScreen />
-
-product.js -
-<Link to={`/product/${product._id}`}>
-
+----------------------------------------------------------------------------------------------
 app.js -
-app.get("/api/products/:id", (req, res) => {
-  const product = products.find((p) => p._id === req.params.id);
-  res.json(product);
-});
 
-ProductScreen.jsx
-const { data } = await axios.get(`/api/products/${productId}`);	
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+app.use(notFound);
+app.use(errorHandler);
+
+----------------------------------------------------------------------------------------------
+productRoutes.js -
+
+import asyncHandler from "../middleware/asyncHandler.js";
+
+- remove below code
+router.get(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      res.json(product);
+    }
+    res.status(404).json({ message: "Product not found" });
+  })
+);
+
+- add below code
+router.get(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404);
+      throw new Error("Resourse not found");
+    }
+  })
+);
+
+----------------------------------------------------------------------------------------------
+
