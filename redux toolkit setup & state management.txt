@@ -1,0 +1,72 @@
+Redux Store & API Slice:
+
+- install redux library in frontend
+>> npm i @reduxjs/toolkit react-redux
+
+----------------------------------------------------------------------------------------------
+- create "store.js" file under src
+
+store.js -
+import { configureStore } from "@reduxjs/toolkit";
+
+const store = configureStore({
+  reducer: {},
+});
+
+export default store;
+
+
+index.js -
+import { Provider } from "react-redux";
+import store from "./store";
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+  </React.StrictMode>
+);
+
+Inspect > Redux
+
+----------------------------------------------------------------------------------------------
+- create "constants.js" file under src
+
+constants.js - 
+export const BASE_URL =
+  process.env.NODE_ENV === "development" ? "http://localhost:5000" : "";
+export const PRODUCT_URL = "/api/products";
+export const USERS_URL = "/api/users";
+export const ORDERS_URL = "/api/orders";
+export const PAYPAL_URL = "/api/config/paypal";
+
+----------------------------------------------------------------------------------------------
+- create "slices" folder under src
+
+- create "apiSlice.js" file under slices
+
+apiSlice.js -
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { BASE_URL } from "../constants";
+
+const baseQuery = fetchBaseQuery({ baseURL: BASE_URL });
+
+export const apiSlice = createApi({
+  baseQuery,
+  tagTypes: ["Product", "Order", "User"],
+  endpoints: (builder) => ({}),
+});
+
+
+store.js -
+const store = configureStore({
+  reducer: {
+    [apiSlice.reducerPath]: apiSlice.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(apiSlice.middleware),
+  devTools: true,
+});
+
+Inspect > Redux
+==============================================================================================
