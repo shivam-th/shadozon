@@ -93,7 +93,6 @@ export const productsApiSlice = apiSlice.injectEndpoints({
 export const { useGetProductsQuery } = productsApiSlice;
 
 
-
 HomeScreen.jsx -
 - remove below code
 import { useEffect, useState } from "react";
@@ -109,8 +108,6 @@ const fetchProducts = async () => {
 
 fetchProducts();
 }, []);
-
-
 
 
 - add below code
@@ -140,4 +137,53 @@ const HomeScreen = () => {
   );
 }
 
+==============================================================================================
+Get Product Details Endpoint:
+
+ProductApiSlice.js -
+getProductDetails: builder.query({
+  query: (productId) => ({
+	url: `${PRODUCTS_URL}/${productId}`,
+  }),
+  keepUnusedDataFor: 5,
+}),
+	
+	
+ProductScreen.jsx -
+- remove below code
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+const [product, setProducts] = useState([]);
+
+useEffect(() => {
+const fetchProduct = async () => {
+  const { data } = await axios.get(`/api/products/${productId}`);
+  setProducts(data);
+};
+fetchProduct();
+}, [productId]);
+
+- add below code
+import { useGetProductDetailsQuery } from "../slices/productsApiSlice";
+
+const { id: productId } = useParams();
+const {
+data: product,
+isLoading,
+error,
+} = useGetProductDetailsQuery(productId);
+
+  {isLoading ? (
+	<h2> Loading...</h2>
+  ) : error ? (
+	<div> {error?.data?.message || error.error}</div>
+  ) : (
+	<Row>
+	  <Col md={5}>
+		<Image src={product.image} alt={product.name} fluid />
+	  </Col>
+	</Row>
+  )}
+export const { useGetProductDetailsQuery } =productsApiSlice;
 ==============================================================================================
