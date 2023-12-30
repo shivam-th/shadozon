@@ -187,3 +187,59 @@ error,
   )}
 export const { useGetProductDetailsQuery } =productsApiSlice;
 ==============================================================================================
+Loader & Message Components:
+
+- create "Loader.jsx" under component
+
+Loader.jsx - 
+import { Spinner } from "react-bootstrap";
+
+const Loader = () => {
+  return (
+    <Spinner
+      animation="border"
+      role="status"
+      style={{
+        width: "100px",
+        height: "100px",
+        margin: "auto",
+        display: "block",
+      }}
+    ></Spinner>
+  );
+};
+
+export default Loader;
+
+
+HomeScreen.jsx & ProductScreen.jsx - 
+- remove below code
+<h2> Loading...</h2>
+
+- add below code
+import Loader from "../components/Loader";
+<Loader/>
+
+----------------------------------------------------------------------------------------------
+- create "Message.jsx" under component
+
+Message.jsx -
+import { Alert } from "react-bootstrap";
+
+const Message = ({ variant, children }) => {
+  return <Alert variant={variant}>{children}</Alert>;
+};
+
+Message.defaultProps = {
+  variant: "info",
+};
+
+export default Message;
+
+
+HomeScreen.jsx & ProductScreen.jsx - 
+- remove below code
+<div> {error?.data?.message || error.error}</div>
+
+- add below code
+<Message variant="danger">{" "}{error?.data?.message || error.error}</Message>
