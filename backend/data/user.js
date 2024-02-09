@@ -4,20 +4,26 @@ const user = [
   {
     name: "Admin User",
     email: "admin@gmail.com",
-    password: bcryptjs.hashSync("admin", 10),
+    password: bcryptjs.hashSync("admin@123", 10),
     isAdmin: true,
   },
   {
-    name: "Shadow",
-    email: "shadow@gmail.com",
-    password: bcryptjs.hashSync("12345678", 10),
+    name: "Shivam Thakur",
+    email: "shivam@gmail.com",
+    password: bcryptjs.hashSync("shivam@123", 10),
     isAdmin: false,
   },
   {
-    name: "Shivam",
-    email: "shivam@gmail.com",
-    password: bcryptjs.hashSync("12345678", 10),
-    isAdmin: true,
+    name: "Akash",
+    email: "akash@gmail.com",
+    password: bcryptjs.hashSync("akash@123", 10),
+    isAdmin: false,
+  },
+  {
+    name: "Goblin",
+    email: "gobline@gmail.com",
+    password: bcryptjs.hashSync("goblin@123", 10),
+    isAdmin: false,
   },
 ];
 
