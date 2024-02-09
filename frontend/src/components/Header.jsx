@@ -13,7 +13,7 @@ const Header = () => {
         <Container>
           <LinkContainer to="/">
             <Navbar.Brand>
-              <img src={logo} alt="ShadoZon" />
+              {/* <img src={logo} alt="ShadoZon" /> */}
               ShadoZon
             </Navbar.Brand>
           </LinkContainer>

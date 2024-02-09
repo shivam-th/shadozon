@@ -1,0 +1,781 @@
+Express Server:
+
+- create the app.js file in backend folder & run the app.js in backend directory
+
+create "backend" folder
+
+create "app.js" file under "backend"
+
+>> cd backend
+>> node app.js
+
+----------------------------------------------------------------------------------------------
+- initialize the "package.json" file & run the app.js in project directory, also modify type and scrpt in package.json 
+
+>> npm init or npm init -y
+package name: (shadozon)
+version: (1.0.0)
+description: Ecommerce application built with the MERN stack
+entry point: (index.js) app.js
+author: Shivam Thakur
+
+
+package.json - 
+"type": "module",
+"scripts": {
+	"start": "node backend/app.js"
+}
+<<remove "test": "echo \"Error: no test specified\" && exit 1", >>
+
+>> npm start
+----------------------------------------------------------------------------------------------
+- installing express & configure
+
+>> npm i express 
+
+
+app.js -
+import express from "express";
+
+const app = express();
+const port = 5000;
+
+app.get("/", (req, res) => {
+  res.send("API is running");
+});
+
+app.listen(port, () => console.log(`Server running on port ${port}`));
+
+
+shadozon >> npm start
+Server running on port ${port}
+
+frontend >> npm start
+http://localhost:5000/  > API is running
+
+==============================================================================================
+Initial Product Routes:
+
+- copy paste products.js file in data folder & configure in app.js
+
+create "data" folder" under backend
+
+copy paste "products.js" file in data
+
+
+app.js -
+import products from "./data/products.js";
+
+app.get("/api/products", (req, res) => {
+  res.json(products);
+});
+
+app.get("/api/products/:id", (req, res) => {
+  const product = products.find((p) => p._id === req.params.id);
+  res.json(product);
+});
+
+==============================================================================================
+Nodemon & Concurrently:
+
+- installing nodemon & concurrently packages
+
+>> npm i -D nodemon concurrently
+----------------------------------------------------------------------------------------------
+- modify script in package.json script & run the server
+
+package.json -
+"scripts": {
+	"server": "nodemon backend/app.js"
+},
+
+
+>> npm run server
+----------------------------------------------------------------------------------------------
+- modify script in package.json script & run the client
+
+package.json -
+"scripts": {
+	"client": "npm start --prefix frontend"
+},
+
+>> npm run client
+----------------------------------------------------------------------------------------------
+- modify script in package.json script & run the client/server both corrently
+
+package.json -
+"scripts": {
+	"dev": "concurrently \" npm run server \"  \" npm run client\""
+},
+
+>> npm run dev
+
+==============================================================================================
+Environment Variable:
+
+- install dotenv package, create .env file & declare variables in it. Access variable in app.js
+>> npm i dotenv
+
+create ".env" file under project directory
+
+.env -
+NODE_ENV=development
+PORT=8000
+
+app.js -
+import dotenv from "dotenv";
+dotenv.config();
+const port = process.env.PORT || 5000;
+
+==============================================================================================
+Fetch Products -
+
+- install axios, add proxy in frontend package.json &  fetch data in HomeScreen.jsx/ProductScreen.jsx
+>> npm i axios
+
+
+package.json - 
+"proxy": "http://localhost:8000"'
+
+
+HomeScreen.jsx -
+import { useEffect, useState } from "react";
+import axios from "axios";'
+
+const [products, setProducts] = useState([]);
+useEffect(() => {
+	const fetchProducts = async () => {
+	  const { data } = await axios.get("/api/products");
+	  setProducts(data);
+	};
+	fetchProducts();
+}, []);
+<<remove import products from "../products";>>
+
+Inspect > Network > Reload > Reponse
+
+
+ProductScreen.jsx - 
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+const [product, setProducts] = useState([]);
+const { id: productId } = useParams();
+
+useEffect(() => {
+const fetchProduct = async () => {
+  const { data } = await axios.get(`/api/products/${productId}`);
+  setProducts(data);
+};
+fetchProduct();
+}, [productId]);
+
+
+Now we can delete product.js from frontend
+
+==============================================================================================
+MongoDB Atlas Setup:
+
+- Sign in & create database in collections, add connection string in .env 
+
+https://www.mongodb.com/ > Sign in (Cluster0 - admin /admin123)
+
+Database > Browse Collection > Collections > Create database 
+Database name - shadozon > Collection name - products > Create 
+
+Database > Connect > Drivers > Add your connection string (mongodb+srv://admin:<password>@cluster0.lnlp84f.mongodb.net/?retryWrites=true&w=majority)
+Note: replace <password> with your cluster password & add database name before "?" 
+
+.env -  
+DATABASE = "mongodb+srv://admin:admin123@cluster0.lnlp84f.mongodb.net/shadozon?retryWrites=true&w=majority"
+
+==============================================================================================
+MongoDB Compass Setup:
+
+- Installing Compass & connect atlas with compass
+
+https://www.mongodb.com/try/download/community > Download > Install
+
+Atlas > Database > Connect > Compass > Copy the connection string (mongodb+srv://admin:<password>@cluster0.lnlp84f.mongodb.net/)
+Note: replace <password> with cluster password & add database name after "/" 
+
+Compass > URI - mongodb+srv://admin:admin123@cluster0.lnlp84f.mongodb.net/shadozon > Connect
+
+==============================================================================================
+Modelling Data:
+
+create "models" folder under backend
+
+create "productModel.js", "userModel.js", & "orderModel.js" files under models
+
+
+productModel.js -
+
+import mongoose from "mongoose";
+
+const reviewSchema = mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    rating: {
+      type: Number,
+      required: true,
+    },
+    comment: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const productSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: String,
+      required: true,
+    },
+    brand: {
+      type: String,
+      required: true,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    reviews: [reviewSchema],
+    rating: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    numReview: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    price: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    countInStock: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+  },
+  {
+    timestamps: true, //automatical created add fields
+  }
+);
+
+const Product = mongoose.model("Product", productSchema);
+
+export default Product;
+
+----------------------------------------------------------------------------------------------
+userModel.js -
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const User = mongoose.model("User", userschema);
+
+export default User;
+
+----------------------------------------------------------------------------------------------
+orderModel.js -
+
+import mongoose from "mongoose";
+
+const orderSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
+    orderItems: [
+      {
+        name: { type: String, required: true },
+        qty: { type: Number, required: true },
+        image: { type: String, required: true },
+        price: { type: Number, required: true },
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+          ref: "Product",
+        },
+      },
+    ],
+    shippingAddress: {
+      address: { type: String, required: true },
+      city: { type: String, required: true },
+      postalCode: { type: String, required: true },
+    },
+    paymentMethod: {
+      type: String,
+      required: true,
+    },
+    paymentResult: {
+      id: { type: String },
+      status: { type: String },
+      update_time: { type: String },
+      email_address: { type: String },
+    },
+    itemsPrice: {
+      type: Number,
+      required: true,
+      default: 0.0,
+    },
+    taxPrice: {
+      type: Number,
+      required: true,
+      default: 0.0,
+    },
+    shippingPrice: {
+      type: Number,
+      required: true,
+      default: 0.0,
+    },
+    totalPrice: {
+      type: Number,
+      required: true,
+      default: 0.0,
+    },
+    isPaid: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    paidAt: {
+      type: Date,
+    },
+    isDelivered: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    deliveredAt: {
+      type: Date,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const Order = mongoose.model("Order", orderSchema);
+
+export default Order;
+
+==============================================================================================
+Prepare Sample Data:
+
+- remove id from product.js because mongo db dont need
+
+- create "user.js" file under data
+
+- install package to hash password
+>> npm i bcryptjs
+
+user.js - 
+import bcryptjs from "bcryptjs";
+
+const user = [
+  {
+    name: "Admin User",
+    email: "admin@email.com",
+    password: bcryptjs.hashSync("123456", 10),
+    isAdmin: true,
+  },
+  {
+    name: "Shadow",
+    email: "shadow@email.com",
+    password: bcryptjs.hashSync("123456", 10),
+    isAdmin: false,
+  },
+];
+
+export default user;
+==============================================================================================
+- install color package to get a color to output
+>> npm i colors
+==============================================================================================
+Seeding Sample Data:
+
+- create "seeder.js" file under backend
+
+seeder.js -
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import users from "./data/user.js";
+import products from "./data/products.js";
+import User from "./models/userModel.js";
+import Product from "./models/productModel.js";
+import Order from "./models/orderModel.js";
+import connectDB from "./config/db.js";
+import colors from "colors";
+
+dotenv.config();
+
+connectDB();
+
+const importData = async () => {
+  try {
+    await Order.deleteMany();
+    await Product.deleteMany();
+    await User.deleteMany();
+
+    const createUsers = await User.insertMany(users);
+    const adminUser = createUsers[0]._id;
+    const sampleProducts = products.map((product) => {
+      return { ...product, user: adminUser };
+    });
+
+    await Product.insertMany(sampleProducts);
+    console.log("Data Imported!".green.inverse);
+    process.exit();
+  } catch (error) {
+    console.log(`${error}`.red.inverse);
+    process.exit(1);
+  }
+};
+
+const destroyData = async () => {
+  try {
+    await Order.deleteMany();
+    await Product.deleteMany();
+    await User.deleteMany();
+
+    console.log("Data Destroyed!".red.inverse);
+    process.exit();
+  } catch (error) {
+    console.log(`${error}`.red.inverse);
+    process.exit(1);
+  }
+};
+
+if (process.argv[2] === "-d") {
+  destroyData();
+} else {
+  importData();
+}
+
+package.json - 
+"scripts": {
+    "data:destroy": "node backend/seeder.js -d"
+}
+
+>> npm run data:import
+MongoDb > Refresh > data will be added
+
+>> npm run data:destroy
+MongoDb > Refresh > data will be deleted
+
+==============================================================================================
+- Postman
+
+https://www.postman.com/downloads/ > shivam0567 /PaShiv@99
+Workspace > Create Workspace > Name - MERN > Create Workspace
+
+Environment > Create Environment > Rename - ShadoZon
+Variable - baseURL, Type - default, Initial value - localhost:8000/api, Current value - localhost:8000/api  > Save
+
+Environment - Shadozon
+
+APIs > Create an API > Rename - ShadoZon > Create		
+
+Collections > Creat Collection > Rename - Shadozon 
+ShadoZon > Add folder > Rename -Products
+
+Products > Add Request > Rename - Get All Products
+
+Enter URL - {{baseURL}}/products or http://localhost:8000/api/products
+==============================================================================================
+Get data from database:
+
+- install asynhandler package
+>> npm i express-async-handler@1.1.4
+----------------------------------------------------------------------------------------------
+- create asyncHandler.js under middleware 
+ 
+create middleware under backend
+
+create "asyncHandler.js" under middleware
+----------------------------------------------------------------------------------------------
+- create "productRoutes.js" file under routes
+
+create "routes" folder under backend
+
+create "productRoutes.js" file under routes
+----------------------------------------------------------------------------------------------
+- remove below code from app.js
+
+import products from "../data/products.js";
+
+app.get("/api/products", (req, res) => {
+  res.json(products);
+});
+
+app.get("/api/products/:id", (req, res) => {
+  const product = products.find((p) => p._id === req.params.id);
+  res.json(product);
+});
+
+----------------------------------------------------------------------------------------------
+app.js -
+
+import productRoutes from "./routes/productRoutes.js";
+app.use("/api/products", productRoutes);
+----------------------------------------------------------------------------------------------
+asyncHandler.js -
+
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+export default asyncHandler;
+----------------------------------------------------------------------------------------------
+productRoutes.js -
+
+import express from "express";
+const router = express.Router();
+import asyncHandler from "../middleware/asyncHandler.js";
+import Product from "../models/productModel.js";
+
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const products = await Product.find({});
+    res.json(products);
+  })
+);
+
+router.get(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      res.json(product);
+    }
+    res.status(404).json({ message: "Product not found" });
+  })
+
+);
+
+export default router;
+----------------------------------------------------------------------------------------------
+- create request in postman for single product
+
+Products > Add request > Get Single Product
+
+URL - {{baseURL}}/products/:id
+
+Path Variable > Id - 658887d541937acc848166a8 (taken from path)
+
+==============================================================================================
+Custome Error Middleware:
+
+- create "errorMiddleware.js" file under middleware
+
+errorMiddleware.js -
+const notFound = (req, res, next) => {
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  res.status(404);
+  next(error);
+};
+
+const errorHandler = (err, req, res, next) => {
+  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let message = err.message;
+
+  // Check for Mongoose bad ObjectId
+  if (err.name === "CastError" && err.kind === "ObjectId") {
+    message = `Resource not found`;
+    statusCode = 404;
+  }
+
+  res.status(statusCode).json({
+    message,
+    stack: process.env.NODE_ENV === "production" ? "🥞" : err.stack,
+  });
+};
+
+export { notFound, errorHandler };
+
+----------------------------------------------------------------------------------------------
+app.js -
+
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+app.use(notFound);
+app.use(errorHandler);
+
+----------------------------------------------------------------------------------------------
+productRoutes.js -
+
+import asyncHandler from "../middleware/asyncHandler.js";
+
+- remove below code
+router.get(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      res.json(product);
+    }
+    res.status(404).json({ message: "Product not found" });
+  })
+);
+
+- add below code
+router.get(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404);
+      throw new Error("Resourse not found");
+    }
+  })
+);
+
+==============================================================================================
+Product Controller :
+
+- create "productController.js" file under "controller"
+
+create "controller" folder under backend
+
+create "productController.js" file under "controller"
+----------------------------------------------------------------------------------------------
+productController.js -
+
+import asyncHandler from "../middleware/asyncHandler.js";
+import Product from "../models/productModel.js";
+
+// @desc Fetch all products
+// @route GET /api/products
+// @access Public
+const getProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find({});
+  res.json(products);
+});
+
+// @desc Fetch a product
+// @route GET /api/products/:id
+// @access Public
+const getProductById = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    return res.json(product);
+  } else {
+    res.status(404);
+    throw new Error("Resourse not found");
+  }
+});
+
+productRoutes.js - 
+import {
+  getProducts,
+  getProductById,
+} 
+
+export { getProducts, getProductById };
+----------------------------------------------------------------------------------------------
+productRoutes.js -
+
+- remove below code
+
+productRoutes.js -
+import asyncHandler from "../middleware/asyncHandler.js";
+import Product from "../models/productModel.js";
+
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const products = await Product.find({});
+    res.json(products);
+  })
+);
+
+router.get(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      return res.json(product);
+    } else {
+      res.status(404);
+      throw new Error("Resourse not found");
+    }
+  })
+);
+
+
+- add below code
+
+import {
+  getProducts,
+  getProductById,
+} from "../controllers/productController.js";
+
+router.route("/").get(getProducts);
+router.route("/:id").get(getProductById);
+
+==============================================================================================
+
+
