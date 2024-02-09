@@ -170,5 +170,39 @@ Users/AuthUser > Body - x-www-form-urlencoded
 Key - email > Value - shivam@gmail.com
 Key - password > Value - 12345678
 ==============================================================================================
+JWT HTTP Only Cookie -
+
+- install jsonwebtoken package
+>> npm i jsonwebtoken
 
 
+userController.js -
+import jwt from 'jsonwebtoken';
+const authUser = asyncHandler(async (req, res) => {
+if (user && (await user.matchPassword(password))) {
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    // Set JWT as an HTTP-Only cookie
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development", // Use secure cookies in production
+      sameSite: "strict", // Prevent CSRF attacks
+      maxAge: 30 * 60 * 60 * 1000, // 30 days
+    });
+}
+}
+
+
+.env -
+JWT_SECRET=abc123
+
+
+Postman -
+Users/AuthUser > Body - x-www-form-urlencoded
+Key - email > Value - shivam@gmail.com
+Key - password > Value - 12345678
+Cookie - jwt cookie would be there
+Headers > Set-Cookie > copy jwt token > visit jwt.io > paste token under encoded > compare the userid with db user id
+==============================================================================================
