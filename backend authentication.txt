@@ -289,3 +289,97 @@ Postman -
 Auth User > Send > Cookie would be stored
 Logout User > Send > Cookie would be deleted
 ==============================================================================================
+User Register Endpoint & Encryption:
+
+userController.js - 
+- remove below code
+import jwt from "jsonwebtoken";
+const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    // Set JWT as an HTTP-Only cookie
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development", // Use secure cookies in production
+      sameSite: "strict", // Prevent CSRF attacks
+      maxAge: 30 * 60 * 60 * 1000, // 30 days
+    });
+
+
+- create "utils" folder under backend
+- create "'generateToken.js" file under utils
+	
+generateToken.js - 
+import jwt from 'jsonwebtoken';
+
+const generateToken = (res, userId) => {
+  const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: '1h',
+  });
+
+  // Set JWT as an HTTP-Only cookie
+  res.cookie('jwt', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== 'development', // Use secure cookies in production
+    sameSite: 'strict', // Prevent CSRF attacks
+    maxAge: 30 * 60 * 60 * 1000, // 30 days
+  });
+};
+
+export default generateToken;
+
+
+userController.js - 
+- add below code
+import generateToken from "../utils/generateToken.js";
+const authUser = asyncHandler(async (req, res) => {
+if (user && (await user.matchPassword(password))) {
+generateToken(res, user._id);
+}
+}
+
+const registerUser = asyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
+
+  const userExists = await User.findOne({ email });
+
+  if (userExists) {
+    res.status(400);
+    throw new Error("User already exists");
+  }
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+  });
+
+  if (user) {
+    generateToken(res, user._id);
+
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid user data");
+  }
+});
+
+
+userModel.js -
+// Encrypt password using bcrypt
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    next();
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+
