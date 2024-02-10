@@ -379,3 +379,48 @@ register: builder.mutation({
   }),
 }),
 export const { useLoginMutation, useLogoutMutation, useRegisterMutation } = userApiSlice;
+
+
+
+
+
+
+
+
+
+
+productController.js -
+const pageSize = 12;
+const page = Number(req.query.pageNumber) || 1;
+
+const count = await Product.countDocuments();
+const products = await Product.find()
+.limit(pageSize)
+.skip(pageSize * (page - 1));
+
+res.json({ products, page, pages: Math.ceil(count / pageSize) });
+
+
+- create "Paginate.jsx" file under components
+Paginate.jsx -
+import { Pagination } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
+
+const Paginate = ({ pages, page, isAdmin = false }) => {
+  return (
+    pages > 1 && (
+      <Pagination>
+        {[...Array(pages).keys()].map((x) => (
+          <LinkContainer
+            key={x + 1}
+            to={!isAdmin ? `/page/${x + 1}` : `/admin/productlist/${x + 1}`}
+          >
+            <Pagination.Item active={x + 1 === page}>{x + 1}</Pagination.Item>
+          </LinkContainer>
+        ))}
+      </Pagination>
+    )
+  );
+};
+
+export default Paginate;
